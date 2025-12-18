@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="min-h-[400vh] w-full relative z-10 pointer-events-none">
+    <section class="min-h-[300vh] w-full relative z-10 pointer-events-none">
       
       <!-- INGREDIENTS SECTION (20% - 40%) -->
       <div class="h-screen flex items-center justify-start px-20">
@@ -79,4 +79,4 @@ import { CommonModule } from '@angular/common';
   `,
   styles: []
 })
-export class FeaturesComponent {}
+export class FeaturesComponent { }

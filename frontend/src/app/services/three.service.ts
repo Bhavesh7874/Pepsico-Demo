@@ -19,18 +19,18 @@ export class ThreeService implements OnDestroy {
   private scene!: THREE.Scene;
   private composer!: EffectComposer;
   private frameId: number | null = null;
-  
+
   public canMesh!: THREE.Group;
   public particles!: ParticleSystem;
   public energyRings!: THREE.Group;
   public ambientDust!: THREE.Points;
 
 
-  constructor(private ngZone: NgZone) {}
+  constructor(private ngZone: NgZone) { }
 
   public initialize(canvas: HTMLCanvasElement): void {
     this.canvas = canvas;
-    
+
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -49,7 +49,7 @@ export class ThreeService implements OnDestroy {
 
     // Scene
     this.scene = new THREE.Scene();
-    
+
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       45,
@@ -57,14 +57,13 @@ export class ThreeService implements OnDestroy {
       0.1,
       1000
     );
-    this.camera.position.z = 5;
+    this.camera.position.z = 8;
 
     // Add Can Mesh
     this.canMesh = CanBuilder.createCan();
-    this.canMesh.rotation.z = 0.1; 
+    this.canMesh.rotation.z = 0.1;
     this.scene.add(this.canMesh);
 
-    // Particles (Explosion)
     this.particles = new ParticleSystem(500);
     this.scene.add(this.particles.getMesh());
 
@@ -87,7 +86,7 @@ export class ThreeService implements OnDestroy {
 
   private setupPostProcessing(): void {
     this.composer = new EffectComposer(this.renderer);
-    
+
     const renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
@@ -108,10 +107,10 @@ export class ThreeService implements OnDestroy {
     // In CanBuilder we used individual meshes.
     const body = this.canMesh.getObjectByName('body') as THREE.Mesh;
     if (body) {
-       // We used a label texture. Detailed color changing might need tinting 
-       // or replacing the texture. For now, let's tint the material color.
-       // The label material was MeshStandardMaterial.
-       (body.material as THREE.MeshStandardMaterial).color.setHex(colorHex);
+      // We used a label texture. Detailed color changing might need tinting 
+      // or replacing the texture. For now, let's tint the material color.
+      // The label material was MeshStandardMaterial.
+      (body.material as THREE.MeshStandardMaterial).color.setHex(colorHex);
     }
   }
 
@@ -132,11 +131,16 @@ export class ThreeService implements OnDestroy {
     const rimLight = new THREE.SpotLight(0x00ddeb, 5); // Cyan tint
     rimLight.position.set(-5, 5, -5);
     this.scene.add(rimLight);
-    
+
     // Fill Light (Soften shadows)
     const fillLight = new THREE.PointLight(0xff0055, 2); // Pink tint
     fillLight.position.set(-5, 0, 5);
     this.scene.add(fillLight);
+
+    // Front Light (For label visibility)
+    const frontLight = new THREE.PointLight(0xffffff, 3);
+    frontLight.position.set(0, 0, 6);
+    this.scene.add(frontLight);
   }
 
 
@@ -155,34 +159,36 @@ export class ThreeService implements OnDestroy {
   private animate = (): void => {
     this.ngZone.runOutsideAngular(() => {
       const time = performance.now() * 0.001;
-      
+
       // Animate Particles
-      if (this.particles) {
+      if (this.particles && this.canMesh) {
+        // Sync particle origin to Can's top position (Height/2 approx 1.6)
+        this.particles.getMesh().position.copy(this.canMesh.position).add(new THREE.Vector3(0, 1.6, 0));
         this.particles.update(time, this.explosionFactor);
       }
 
       // Animate Energy Rings
       if (this.energyRings) {
-          this.energyRings.children.forEach(child => {
-              const speed = child.userData['speed'];
-              child.rotation.x += speed.x * 0.1;
-              child.rotation.y += speed.y * 0.1;
-              child.rotation.z += speed.z * 0.1;
-          });
+        this.energyRings.children.forEach(child => {
+          const speed = child.userData['speed'];
+          child.rotation.x += speed.x * 0.1;
+          child.rotation.y += speed.y * 0.1;
+          child.rotation.z += speed.z * 0.1;
+        });
       }
 
       // Animate Ambient Dust
       if (this.ambientDust) {
-          this.ambientDust.rotation.y = time * 0.05;
-          this.ambientDust.rotation.x = time * 0.02;
+        this.ambientDust.rotation.y = time * 0.05;
+        this.ambientDust.rotation.x = time * 0.02;
       }
-      
+
       if (this.composer) {
         this.composer.render();
       } else {
         this.renderer.render(this.scene, this.camera);
       }
-      
+
       this.frameId = requestAnimationFrame(this.animate);
     });
   };
@@ -191,7 +197,7 @@ export class ThreeService implements OnDestroy {
 
   private onWindowResize = (): void => {
     if (!this.camera || !this.renderer) return;
-    
+
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);

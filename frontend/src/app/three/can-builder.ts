@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export class CanBuilder {
-  
+
   public static createCan(): THREE.Group {
     const group = new THREE.Group();
 
@@ -56,7 +56,7 @@ export class CanBuilder {
     lid.position.y = height / 2 - 0.01; // Slightly below rim
     lid.name = 'lid';
     group.add(lid);
-    
+
     // Bottom Cap (Circle)
     const bottomCapGeo = new THREE.CircleGeometry(radius, 64);
     const bottomCap = new THREE.Mesh(bottomCapGeo, aluminumMaterial);
@@ -96,7 +96,7 @@ export class CanBuilder {
       ctx.font = 'bold 120px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      
+
       // Vertical text roughly
       ctx.save();
       ctx.translate(512, 512);
