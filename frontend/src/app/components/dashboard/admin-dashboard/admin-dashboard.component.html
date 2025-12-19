@@ -1,12 +1,14 @@
 <div class="bg-animation-container">
-    <img src="assets/images/splash-black.png" alt="Splash" class="juice-splash"
-         [style.transform]="'translate(-50%, -50%) translate(' + (mouseX * -50) + 'px, ' + (mouseY * -30) + 'px)'">
-    <div class="bottle-wrapper" [style.transform]="'translate(' + (mouseX * 30) + 'px, ' + (mouseY * 30) + 'px)'">
-         <img src="assets/images/bottle-black.png" alt="Juice Bottle" class="floating-bottle-img">
+    <div class="splash-float-wrapper">
+        <img src="assets/images/splash-black.png" alt="Splash" class="juice-splash"
+             [style.transform]="'translate(-50%, -50%) translate(' + (mouseX * -150) + 'px, ' + (mouseY * -100) + 'px)'">
     </div>
-    
-    <img src="assets/images/cap-black.png" alt="Cap" class="rotating-cap"
-         [style.transform]="'translate(' + (mouseX * 80) + 'px, ' + (mouseY * 80) + 'px) rotate(' + (mouseY * 360) + 'deg)'">
+
+    <div class="bottle-float-wrapper">
+        <div class="bottle-parallax-wrapper" [style.transform]="'translate(' + (mouseX * 100) + 'px, ' + (mouseY * 100) + 'px)'">
+             <img src="assets/images/bottle-black.png" alt="Juice Bottle" class="floating-bottle-img">
+        </div>
+    </div>
     
     <!-- Fizz/Bubble Particles for speed/energy -->
     <div class="particle p1"></div>
