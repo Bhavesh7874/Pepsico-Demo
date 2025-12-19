@@ -75,14 +75,14 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
         }
       });
 
-      // --- GLOBAL CONTINUOUS ROTATION (0% - 100%) ---
-      // We overwrite 'y' rotation for the entire timeline. 
-      // Starting at Math.PI and rotating 5 Full Circles
+      // --- GLOBAL CONTINUOUS ROTATION (0% - 90%) ---
+      // We overwrite 'y' rotation for the first 90% of the timeline.
+      // Starting at Math.PI
       mainTl.fromTo(can.rotation, {
         y: Math.PI
       }, {
-        y: Math.PI + (Math.PI * 2 * 5), // 5 full spins
-        duration: 100, // Covers entire timeline
+        y: Math.PI + (Math.PI * 2 * 4.5), // 4.5 spins (End at 10PI)
+        duration: 90, // Covers 90%
         ease: "none"
       }, 0);
 
@@ -144,7 +144,7 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
           onUpdate: () => threeSvc.updateCanColor(colorProxy.hex)
         }, 70);
 
-      // 4. CTA ZOOM (80% - 100%)
+      // 4. CTA ZOOM (90% - 100%)
       mainTl.to(can.position, {
         z: 3,
         y: 0,
@@ -154,8 +154,9 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
       }, 90);
 
       mainTl.to(can.rotation, {
-        y: Math.PI * 4,
-        duration: 10
+        y: Math.PI * 12, // Continue to 12PI (1 full spin in last 10%)
+        duration: 10,
+        ease: "power2.out"
       }, 90);
     }
 

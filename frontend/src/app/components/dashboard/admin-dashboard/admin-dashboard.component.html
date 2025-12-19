@@ -1,36 +1,131 @@
-<div class="min-h-screen text-white p-8 pt-24">
-    <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-3xl font-bold text-green-400">Admin Dashboard</h1>
-            <div class="flex items-center gap-4">
-              <span>Welcome, {{ user?.name }}</span>
-              <button (click)="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white font-bold transition">Logout</button>
+<div class="bg-animation-container">
+    <img src="assets/images/splash-black.png" alt="Splash" class="juice-splash"
+         [style.transform]="'translate(-50%, -50%) translate(' + (mouseX * -50) + 'px, ' + (mouseY * -30) + 'px)'">
+    <div class="bottle-wrapper" [style.transform]="'translate(' + (mouseX * 30) + 'px, ' + (mouseY * 30) + 'px)'">
+         <img src="assets/images/bottle-black.png" alt="Juice Bottle" class="floating-bottle-img">
+    </div>
+    
+    <img src="assets/images/cap-black.png" alt="Cap" class="rotating-cap"
+         [style.transform]="'translate(' + (mouseX * 80) + 'px, ' + (mouseY * 80) + 'px) rotate(' + (mouseY * 360) + 'deg)'">
+    
+    <!-- Fizz/Bubble Particles for speed/energy -->
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+    <div class="particle p4"></div>
+    <div class="particle p5"></div>
+
+    <!-- Gradient Overlay to ensure text readability -->
+    <div class="overlay-gradient"></div>
+</div>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">PepsiCo Admin</div>
+        <nav class="nav-links">
+            <a href="javascript:void(0)" class="nav-item active">
+                <span class="icon">📦</span> Dashboard
+            </a>
+            <a href="javascript:void(0)" class="nav-item">
+                <span class="icon">👥</span> Users
+            </a>
+            <a href="javascript:void(0)" class="nav-item">
+                <span class="icon">⚙️</span> Settings
+            </a>
+        </nav>
+        <button (click)="logout()" class="logout-btn">Logout</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1 class="page-title">Dashboard</h1>
+                <p class="user-info">Welcome back, {{ user?.name }}</p>
             </div>
+            <button (click)="openModal()" class="btn-primary">+ Add New Product</button>
         </header>
 
-        <!-- Product Form -->
-        <section class="bg-gray-800/80 backdrop-blur-md rounded-lg p-6 shadow-lg mb-8">
-            <h2 class="text-xl font-bold mb-4">Add New Product</h2>
-            <form [formGroup]="productForm" (ngSubmit)="addProduct()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" formControlName="name" placeholder="Product Name" class="p-3 rounded bg-gray-700/80 border border-gray-600 text-white">
-                <input type="number" formControlName="price" placeholder="Price" class="p-3 rounded bg-gray-700/80 border border-gray-600 text-white">
-                <input type="text" formControlName="description" placeholder="Description" class="p-3 rounded bg-gray-700/80 border border-gray-600 text-white md:col-span-2">
-                <button type="submit" [disabled]="productForm.invalid" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded font-bold md:col-span-2 disabled:opacity-50">Add Product</button>
-            </form>
+        <!-- Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value">{{ products.length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Stock</div>
+                <div class="stat-value">{{ getTotalStock() }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">System Status</div>
+                <div class="stat-value" style="color: #2ea043;">Active</div>
+            </div>
         </section>
 
-        <!-- Product List -->
+        <!-- Products -->
         <section>
-            <h2 class="text-2xl font-bold mb-4">Inventory</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div *ngFor="let product of products" class="bg-gray-800/80 backdrop-blur-md p-4 rounded-lg border border-gray-700 relative group">
-                    <button (click)="deleteProduct(product._id)" class="absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">X</button>
-                    <h3 class="text-xl font-bold">{{ product.name }}</h3>
-                    <p class="text-green-400 font-bold text-lg">${{ product.price }}</p>
-                    <p class="text-gray-400 text-sm mt-2">{{ product.description }}</p>
-                    <div class="mt-4 text-xs text-gray-500">Stock: {{ product.stock }}</div>
+            <div class="action-bar">
+                <h2 class="text-xl font-bold text-white">Product Inventory</h2>
+            </div>
+            
+            <div class="products-grid">
+                <div *ngFor="let product of products" class="product-card">
+                    <button (click)="deleteProduct(product._id)" class="delete-btn" title="Delete Product">
+                        🗑️
+                    </button>
+                    <img [src]="product.imageUrl || 'https://via.placeholder.com/300'" alt="{{ product.name }}" class="product-image">
+                    <div class="product-details">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <div class="product-price">${{ product.price }}</div>
+                        <p class="product-desc">{{ product.description }}</p>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-xs text-gray-500">Stock: {{ product.stock }}</span>
+                            <span class="text-xs text-gray-500">ID: {{ product._id.substring(0,6) }}...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
+    </main>
+</div>
+
+<!-- Add Product Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal($event)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2 class="text-2xl font-bold text-white mb-6">Add New Product</h2>
+        
+        <form [formGroup]="productForm" (ngSubmit)="addProduct()">
+            <div class="form-group">
+                <label class="block text-gray-400 mb-2">Product Name</label>
+                <input type="text" formControlName="name" class="form-input" placeholder="e.g. Pepsi Zero Sugar">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label class="block text-gray-400 mb-2">Price ($)</label>
+                    <input type="number" formControlName="price" class="form-input" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="block text-gray-400 mb-2">Stock</label>
+                    <input type="number" formControlName="stock" class="form-input" placeholder="100">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="block text-gray-400 mb-2">Description</label>
+                <textarea formControlName="description" class="form-input" rows="3" placeholder="Product description..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="block text-gray-400 mb-2">Image URL</label>
+                <input type="text" formControlName="imageUrl" class="form-input" placeholder="https://...">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" (click)="showModal = false" class="btn-secondary w-full">Cancel</button>
+                <button type="submit" [disabled]="productForm.invalid" class="btn-primary w-full disabled:opacity-50">Save Product</button>
+            </div>
+        </form>
     </div>
 </div>

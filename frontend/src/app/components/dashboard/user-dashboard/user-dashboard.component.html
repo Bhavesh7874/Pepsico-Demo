@@ -1,25 +1,63 @@
-<div class="min-h-screen text-white p-8 pt-24">
-    <div class="max-w-4xl mx-auto">
-        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-3xl font-bold text-blue-400">User Dashboard</h1>
-            <button (click)="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white font-bold transition">Logout</button>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">PepsiCo User</div>
+        <nav class="nav-links">
+            <a href="javascript:void(0)" class="nav-item active">
+                <span class="icon">🏠</span> Home
+            </a>
+            <a href="javascript:void(0)" class="nav-item">
+                <span class="icon">🛍️</span> My Orders
+            </a>
+            <a href="javascript:void(0)" class="nav-item">
+                <span class="icon">⚙️</span> Settings
+            </a>
+        </nav>
+        <button (click)="logout()" class="logout-btn">Logout</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1 class="page-title">My Dashboard</h1>
+                <p class="user-info">Manage your profile and orders</p>
+            </div>
+            <div class="user-pill bg-gray-800 px-4 py-2 rounded-full border border-gray-700 text-gray-300">
+                Standard Member
+            </div>
         </header>
 
-        <section class="bg-gray-800/80 backdrop-blur-md rounded-lg p-6 shadow-lg mb-6">
-            <h2 class="text-xl font-bold mb-4">Welcome, {{ user?.name }}!</h2>
-            <p class="text-gray-300">You are logged in as a <strong>Standard User</strong>.</p>
-            <p class="mt-2 text-gray-400">Email: {{ user?.email }}</p>
+        <!-- Profile Section -->
+        <section class="profile-section">
+            <div class="profile-header">
+                <div class="avatar">👤</div>
+                <div>
+                    <h2 class="profile-name">{{ user?.name || 'User' }}</h2>
+                    <p class="profile-email">{{ user?.email }}</p>
+                </div>
+            </div>
         </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-gray-800/80 backdrop-blur-md p-6 rounded-lg text-center cursor-pointer hover:bg-gray-750 transition border border-transparent hover:border-blue-500">
-                <h3 class="text-xl font-bold mb-2">My Orders</h3>
-                <p class="text-sm text-gray-400">View your past Pepsico orders</p>
+        <!-- Quick Actions -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-icon">📦</div>
+                <h3 class="card-title">My Orders</h3>
+                <p class="card-desc">Track and view your order history</p>
             </div>
-            <div class="bg-gray-800/80 backdrop-blur-md p-6 rounded-lg text-center cursor-pointer hover:bg-gray-750 transition border border-transparent hover:border-blue-500">
-                <h3 class="text-xl font-bold mb-2">Profile Settings</h3>
-                <p class="text-sm text-gray-400">Update your account details</p>
+            
+            <div class="dashboard-card">
+                <div class="card-icon">💳</div>
+                <h3 class="card-title">Payment Methods</h3>
+                <p class="card-desc">Manage your saved cards</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">❤️</div>
+                <h3 class="card-title">Favorites</h3>
+                <p class="card-desc">Your saved products</p>
             </div>
         </div>
-    </div>
+    </main>
 </div>
