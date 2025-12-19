@@ -61,7 +61,10 @@
             </div>
             <div class="stat-card">
                 <div class="stat-label">System Status</div>
-                <div class="stat-value" style="color: #2ea043;">Active</div>
+                <div class="stat-value" [style.color]="systemStatus === 'Active' ? '#2ea043' : (systemStatus === 'Offline' ? '#cf222e' : '#8b949e')">
+                    <span class="status-dot" [class.pulse]="systemStatus === 'Active'"></span>
+                    {{ systemStatus }}
+                </div>
             </div>
         </section>
 
@@ -76,7 +79,7 @@
                     <button (click)="deleteProduct(product._id)" class="delete-btn" title="Delete Product">
                         🗑️
                     </button>
-                    <img [src]="product.imageUrl || 'https://via.placeholder.com/300'" alt="{{ product.name }}" class="product-image">
+                    <img [src]="getProductImage(product)" alt="{{ product.name }}" class="product-image">
                     <div class="product-details">
                         <h3 class="product-name">{{ product.name }}</h3>
                         <div class="product-price">${{ product.price }}</div>
@@ -120,13 +123,17 @@
             </div>
 
             <div class="form-group">
-                <label class="block text-gray-400 mb-2">Image URL</label>
-                <input type="text" formControlName="imageUrl" class="form-input" placeholder="https://...">
+                <label class="block text-gray-400 mb-2">Product Image (Local)</label>
+                <input type="file" (change)="onFileSelected($event)" class="form-input file:bg-[#00ddeb] file:text-black file:border-none file:px-2 file:py-1 file:rounded file:mr-2 cursor-pointer" accept="image/*">
+                <p class="text-xs text-gray-500 mt-1" *ngIf="selectedFile">Selected: {{ selectedFile.name }}</p>
             </div>
 
             <div class="modal-actions">
                 <button type="button" (click)="showModal = false" class="btn-secondary w-full">Cancel</button>
-                <button type="submit" [disabled]="productForm.invalid" class="btn-primary w-full disabled:opacity-50">Save Product</button>
+                <button type="submit" [disabled]="productForm.invalid || loading" class="btn-primary w-full disabled:opacity-50">
+                    <span *ngIf="!loading">Save Product</span>
+                    <span *ngIf="loading">Saving...</span>
+                </button>
             </div>
         </form>
     </div>

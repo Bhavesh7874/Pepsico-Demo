@@ -40,6 +40,17 @@ export class AuthService {
     );
   }
 
+  updateProfile(userData: any): Observable<any> {
+    return this.http.put(`http://localhost:5002/api/users/profile`, userData).pipe(
+      tap((response: any) => {
+        const currentUser = this.currentUserValue;
+        const updatedUser = { ...currentUser, ...response };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        this.userSubject.next(updatedUser);
+      })
+    );
+  }
+
   logout() {
     localStorage.removeItem('user');
     this.userSubject.next(null);
@@ -49,7 +60,7 @@ export class AuthService {
   get currentUserValue() {
     return this.userSubject.value;
   }
-  
+
   isAuthenticated(): boolean {
     return !!this.currentUserValue;
   }

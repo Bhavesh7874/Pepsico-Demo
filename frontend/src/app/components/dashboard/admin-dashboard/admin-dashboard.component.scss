@@ -223,6 +223,29 @@
   flex-direction: column;
   height: 100%;
   box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+
+  .logout-btn {
+    margin-top: auto;
+    background: rgba(250, 121, 112, 0.1);
+    color: #fa7970;
+    border: 1px solid rgba(250, 121, 112, 0.2);
+    padding: 0.8rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    &:hover {
+      background: #fa7970;
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(250, 121, 112, 0.3);
+    }
+  }
 }
 
 .logo {
@@ -380,6 +403,33 @@
   color: #f0f6fc;
   font-size: 2rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+
+.pulse {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0 rgba(46, 160, 67, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(46, 160, 67, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 160, 67, 0);
+  }
 }
 
 /* Action Bar */

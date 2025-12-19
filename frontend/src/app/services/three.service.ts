@@ -29,6 +29,7 @@ export class ThreeService implements OnDestroy {
   constructor(private ngZone: NgZone) { }
 
   public initialize(canvas: HTMLCanvasElement): void {
+    this.cleanUp();
     this.canvas = canvas;
 
     // Renderer
@@ -221,11 +222,23 @@ export class ThreeService implements OnDestroy {
     return this.renderer;
   }
 
-  ngOnDestroy(): void {
-    if (this.frameId != null) {
+  public cleanUp(): void {
+    if (this.frameId !== null) {
       cancelAnimationFrame(this.frameId);
+      this.frameId = null;
     }
     window.removeEventListener('resize', this.onWindowResize);
-    this.renderer.dispose();
+    if (this.renderer) {
+      this.renderer.dispose();
+      this.renderer.forceContextLoss();
+    }
+    if (this.scene) {
+      this.scene.clear();
+    }
+    this.explosionFactor = 0;
+  }
+
+  ngOnDestroy(): void {
+    this.cleanUp();
   }
 }

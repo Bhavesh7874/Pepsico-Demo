@@ -24,6 +24,8 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
   private threeService = inject(ThreeService);
   private platformId = inject(PLATFORM_ID);
   private ctx: gsap.Context | undefined;
+  private onMouseMoveHandler: any;
+  private idleId: number | null = null;
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -46,6 +48,14 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
     if (this.ctx) {
       this.ctx.revert(); // Cleanup GSAP
     }
+    if (this.onMouseMoveHandler) {
+      window.removeEventListener('mousemove', this.onMouseMoveHandler);
+    }
+    if (this.idleId !== null) {
+      cancelAnimationFrame(this.idleId);
+    }
+    ScrollTrigger.getAll().forEach(st => st.kill());
+    this.threeService.cleanUp();
   }
 
   private setupAnimations(): void {
@@ -68,12 +78,17 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
 
       const mainTl = gsap.timeline({
         scrollTrigger: {
-          trigger: "main",
+          trigger: "#main-scroll-container",
           start: "top top",
           end: "bottom bottom",
           scrub: 1,
         }
       });
+
+      // Explicitly refresh after a short delay to ensure layout is stable
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
 
       // --- GLOBAL CONTINUOUS ROTATION (0% - 90%) ---
       // We overwrite 'y' rotation for the first 90% of the timeline.
@@ -160,21 +175,12 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
       }, 90);
     }
 
-    // Idle Float Animation (Sine Wave)
     const startTime = performance.now();
     const idleFloat = () => {
       if (!can) return;
       const elapsed = (performance.now() - startTime) * 0.001;
-      // Add subtle floating motion on Y axis, independent of GSAP timeline
-      // using a small offset. 
-      // Note: GSAP controls 'y' via scroll. If scroll is 0, y is 0.
-      // We can modify 'y' directly in the render loop in ThreeService, but here we can try
-      // adding to rotation or scaling slightly to make it alive.
-      // Let's float the ENTIRE GROUP (canMesh) in ThreeService?
-      // Actually, let's just do a subtle rotation on Z or X that isn't locked by GSAP yet.
       can.rotation.z = 0.2 + Math.sin(elapsed) * 0.05;
-
-      requestAnimationFrame(idleFloat);
+      this.idleId = requestAnimationFrame(idleFloat);
     };
     idleFloat();
 
@@ -182,7 +188,7 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    window.addEventListener('mousemove', (e) => {
+    this.onMouseMoveHandler = (e: MouseEvent) => {
       // Parallax
       const x = (e.clientX / window.innerWidth) * 2 - 1;
       const y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -204,17 +210,15 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
 
           if (intersects.length > 0) {
             document.body.style.cursor = 'pointer';
-            // Scale up for impact - SAFER than material changes
             gsap.to(can.scale, { x: 1.15, y: 1.15, z: 1.15, duration: 0.4, ease: "back.out(1.7)" });
           } else {
             document.body.style.cursor = 'default';
-            // Scale back
             gsap.to(can.scale, { x: 1, y: 1, z: 1, duration: 0.4, ease: "power2.out" });
           }
         }
       }
-    });
+    };
 
-
+    window.addEventListener('mousemove', this.onMouseMoveHandler);
   }
 }
