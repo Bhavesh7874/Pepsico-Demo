@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,12 @@ export class AuthService {
   private userSubject = new BehaviorSubject<any>(null);
   public user$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private logger: LoggerService
+  ) {
+    this.logger.info('AuthService initialized');
     const user = localStorage.getItem('user');
     if (user) {
       this.userSubject.next(JSON.parse(user));
@@ -19,23 +25,33 @@ export class AuthService {
   }
 
   register(userData: any): Observable<any> {
+    this.logger.info('Attempting registration', { email: userData.email });
     return this.http.post(`${this.apiUrl}/register`, userData).pipe(
-      tap((response: any) => {
-        if (response.token) {
-          localStorage.setItem('user', JSON.stringify(response));
-          this.userSubject.next(response);
-        }
+      tap({
+        next: (response: any) => {
+          if (response.token) {
+            this.logger.info('Registration successful', { email: response.email });
+            localStorage.setItem('user', JSON.stringify(response));
+            this.userSubject.next(response);
+          }
+        },
+        error: (err) => this.logger.error('Registration failed', err)
       })
     );
   }
 
   login(userData: any): Observable<any> {
+    this.logger.info('Attempting login', { email: userData.email });
     return this.http.post(`${this.apiUrl}/login`, userData).pipe(
-      tap((response: any) => {
-        if (response.token) {
-          localStorage.setItem('user', JSON.stringify(response));
-          this.userSubject.next(response);
-        }
+      tap({
+        next: (response: any) => {
+          if (response.token) {
+            this.logger.info('Login successful', { email: response.email });
+            localStorage.setItem('user', JSON.stringify(response));
+            this.userSubject.next(response);
+          }
+        },
+        error: (err) => this.logger.error('Login failed', err)
       })
     );
   }
@@ -52,6 +68,7 @@ export class AuthService {
   }
 
   logout() {
+    this.logger.info('Logging out user', { email: this.currentUserValue?.email });
     localStorage.removeItem('user');
     this.userSubject.next(null);
     this.router.navigate(['/login']);

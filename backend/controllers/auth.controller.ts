@@ -8,10 +8,12 @@ import User from '../models/user.model';
 // @access  Public
 export const registerUser = async (req: Request, res: Response) => {
     const { name, email, password, role } = req.body;
+    console.log(`[BACKEND] [AUTH] [${new Date().toISOString()}] Registering user: ${email}`);
 
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+        console.warn(`[BACKEND] [AUTH] [${new Date().toISOString()}] Registration failed: User ${email} already exists`);
         res.status(400).json({ message: 'User already exists' });
         return;
     }
@@ -27,6 +29,7 @@ export const registerUser = async (req: Request, res: Response) => {
     });
 
     if (user) {
+        console.log(`[BACKEND] [AUTH] [${new Date().toISOString()}] User registered successfully: ${email}`);
         res.status(201).json({
             _id: user._id,
             name: user.name,
@@ -35,6 +38,7 @@ export const registerUser = async (req: Request, res: Response) => {
             token: generateToken((user._id as any).toString()),
         });
     } else {
+        console.error(`[BACKEND] [AUTH] [${new Date().toISOString()}] Registration failed: Invalid user data for ${email}`);
         res.status(400).json({ message: 'Invalid user data' });
     }
 };
@@ -44,10 +48,12 @@ export const registerUser = async (req: Request, res: Response) => {
 // @access  Public
 export const loginUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
+    console.log(`[BACKEND] [AUTH] [${new Date().toISOString()}] Login attempt: ${email}`);
 
     const user = await User.findOne({ email });
 
     if (user && user.password && (await bcrypt.compare(password, user.password))) {
+        console.log(`[BACKEND] [AUTH] [${new Date().toISOString()}] Login successful: ${email}`);
         res.json({
             _id: user._id,
             name: user.name,
@@ -56,6 +62,7 @@ export const loginUser = async (req: Request, res: Response) => {
             token: generateToken((user._id as any).toString()),
         });
     } else {
+        console.warn(`[BACKEND] [AUTH] [${new Date().toISOString()}] Login failed: Invalid credentials for ${email}`);
         res.status(401).json({ message: 'Invalid email or password' });
     }
 };

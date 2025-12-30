@@ -1,4 +1,5 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { LoggerService } from '../core/services/logger.service';
 import * as THREE from 'three';
 import { CanBuilder } from '../three/can-builder';
 import { ParticleSystem } from '../three/particles';
@@ -26,9 +27,13 @@ export class ThreeService implements OnDestroy {
   public ambientDust!: THREE.Points;
 
 
-  constructor(private ngZone: NgZone) { }
+  constructor(
+    private ngZone: NgZone,
+    private logger: LoggerService
+  ) { }
 
   public initialize(canvas: HTMLCanvasElement): void {
+    this.logger.info('Initializing ThreeJS scene');
     this.cleanUp();
     this.canvas = canvas;
 
@@ -75,10 +80,10 @@ export class ThreeService implements OnDestroy {
     // Lighting
     this.setupLighting();
 
-    // POST PROCESSING
     this.setupPostProcessing();
 
     // Start Loop
+    this.logger.info('Starting animation loop');
     this.animate();
 
     // Resize Listener
@@ -223,19 +228,58 @@ export class ThreeService implements OnDestroy {
   }
 
   public cleanUp(): void {
+    this.logger.info('Cleaning up ThreeJS resources');
     if (this.frameId !== null) {
       cancelAnimationFrame(this.frameId);
       this.frameId = null;
     }
     window.removeEventListener('resize', this.onWindowResize);
+
+    if (this.composer) {
+      this.composer.dispose();
+    }
+
+    if (this.scene) {
+      this.scene.traverse((object) => {
+        this.disposeObject(object);
+      });
+      this.scene.clear();
+    }
+
     if (this.renderer) {
       this.renderer.dispose();
       this.renderer.forceContextLoss();
     }
-    if (this.scene) {
-      this.scene.clear();
-    }
+
     this.explosionFactor = 0;
+  }
+
+  private disposeObject(object: THREE.Object3D): void {
+    if (object instanceof THREE.Mesh) {
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach((material) => this.disposeMaterial(material));
+        } else {
+          this.disposeMaterial(object.material);
+        }
+      }
+    }
+  }
+
+  private disposeMaterial(material: THREE.Material): void {
+    material.dispose();
+
+    // Dispose of textures if they exist
+    for (const key of Object.keys(material)) {
+      const value = (material as any)[key];
+      if (value instanceof THREE.Texture) {
+        value.dispose();
+      }
+    }
   }
 
   ngOnDestroy(): void {

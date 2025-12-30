@@ -1,30 +1,35 @@
-<div class="min-h-screen flex items-center justify-center bg-transparent text-white pt-20">
-    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-700">
-        <h2 class="text-3xl font-bold mb-6 text-center text-blue-500">PEPSICO Login</h2>
+<div id="pepsi-login-root" class="min-h-screen w-full flex items-center justify-center bg-transparent relative overflow-hidden pt-24">
+    <!-- 3D Scene is visible due to transparent background -->
+    
+    <div class="login-card p-10 md:p-14 w-full max-w-lg mx-auto relative z-10 glass-panel">
+        <div class="logo-container mb-10">
+            <div class="logo-icon"></div>
+            <h1 class="logo-text">PepsiCo</h1>
+        </div>
         
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <div class="mb-4">
-                <label class="block mb-2 text-sm font-bold">Email</label>
-                <input type="email" formControlName="email" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500">
-            </div>
-
-            <div class="mb-6">
-                <label class="block mb-2 text-sm font-bold">Password</label>
-                <input type="password" formControlName="password" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500">
-            </div>
-
-            <div *ngIf="error" class="mb-4 text-red-500 text-sm text-center">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <div *ngIf="error" class="error-message">
                 {{ error }}
             </div>
 
-            <button type="submit" [disabled]="loading" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition duration-200">
-                {{ loading ? 'Logging in...' : 'Login' }}
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" formControlName="email" class="form-input" placeholder="name@pepsico.com">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" formControlName="password" class="form-input" placeholder="••••••••">
+            </div>
+
+            <button type="submit" [disabled]="loading" class="btn-primary">
+                {{ loading ? 'Authenticating...' : 'Sign In' }}
             </button>
         </form>
 
-        <div class="mt-4 text-center text-sm">
-            <span class="text-gray-400">Don't have an account? </span>
-            <a routerLink="/register" class="text-blue-400 hover:text-blue-300">Register here</a>
+        <div class="register-link mt-8">
+            <span>New to the platform? </span>
+            <a routerLink="/register">Create Account</a>
         </div>
     </div>
 </div>

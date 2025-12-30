@@ -13,6 +13,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 // @access  Private
 export const createPaymentIntent = async (req: AuthRequest, res: Response) => {
   const { amount } = req.body;
+  console.log(`[BACKEND] [ORDER] [${new Date().toISOString()}] Creating payment intent for amount: ${amount}`);
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
@@ -23,10 +24,12 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response) => {
       },
     });
 
+    console.log(`[BACKEND] [ORDER] [${new Date().toISOString()}] Payment intent created: ${paymentIntent.id}`);
     res.json({
       clientSecret: paymentIntent.client_secret,
     });
   } catch (error: any) {
+    console.error(`[BACKEND] [ORDER] [${new Date().toISOString()}] Payment intent failed: ${error.message}`);
     res.status(500).json({ message: error.message });
   }
 };
@@ -38,9 +41,11 @@ export const addOrderItems = async (req: AuthRequest, res: Response) => {
   const { orderItems, paymentMethod, totalPrice, paymentResult } = req.body;
 
   if (orderItems && orderItems.length === 0) {
+    console.warn(`[BACKEND] [ORDER] [${new Date().toISOString()}] Order creation failed: No items`);
     res.status(400).json({ message: "No order items" });
     return;
   } else {
+    console.log(`[BACKEND] [ORDER] [${new Date().toISOString()}] Creating new order for user: ${req.user._id}`);
     const order = new Order({
       user: req.user._id,
       items: orderItems,
@@ -52,6 +57,7 @@ export const addOrderItems = async (req: AuthRequest, res: Response) => {
     });
 
     const createdOrder = await order.save();
+    console.log(`[BACKEND] [ORDER] [${new Date().toISOString()}] Order created successfully: ${createdOrder._id}`);
     res.status(201).json(createdOrder);
   }
 };
@@ -76,6 +82,7 @@ export const getOrderById = async (req: AuthRequest, res: Response) => {
 // @route   GET /api/orders/myorders
 // @access  Private
 export const getMyOrders = async (req: AuthRequest, res: Response) => {
+  console.log(`[BACKEND] [ORDER] [${new Date().toISOString()}] Fetching orders for user: ${req.user._id}`);
   const orders = await Order.find({ user: req.user._id });
   res.json(orders);
 };

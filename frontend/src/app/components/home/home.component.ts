@@ -7,7 +7,6 @@ import { FeaturesComponent } from '../ui/features.component';
   selector: 'app-home',
   standalone: true,
   imports: [SceneComponent, HeroComponent, FeaturesComponent],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  templateUrl: './home.component.html'
 })
-export class HomeComponent {}
+export class HomeComponent { }

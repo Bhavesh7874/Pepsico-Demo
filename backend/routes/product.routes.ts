@@ -9,6 +9,7 @@ import {
     getProductImage
 } from '../controllers/product.controller';
 import { protect, admin } from '../middleware/auth.middleware';
+import { cacheMiddleware } from '../middleware/cache.middleware';
 
 // Multer Memory Storage for DB Buffer storage
 const storage = multer.memoryStorage();
@@ -24,10 +25,10 @@ const upload = multer({
 });
 
 router.route('/')
-    .get(getProducts)
+    .get(cacheMiddleware(3600), getProducts)
     .post(protect, admin, upload.single('image'), createProduct);
 
-router.route('/:id').get(getProductById).delete(protect, admin, deleteProduct);
+router.route('/:id').get(cacheMiddleware(3600), getProductById).delete(protect, admin, deleteProduct);
 router.get('/:id/image', getProductImage);
 
 export default router;

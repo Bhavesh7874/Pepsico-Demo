@@ -1,33 +1,20 @@
-<div class="bg-animation-container">
-    <div class="splash-float-wrapper">
-        <img src="assets/images/splash-black.png" alt="Splash" class="juice-splash"
-             [style.transform]="'translate(-50%, -50%) translate(' + (mouseX * -150) + 'px, ' + (mouseY * -100) + 'px)'">
+    <div class="video-container">
+        <video autoplay muted [muted]="true" loop playsinline class="bg-video">
+            <source src="assets/Videos/PepsiCo.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
     </div>
-
-    <div class="bottle-float-wrapper">
-        <div class="bottle-parallax-wrapper" [style.transform]="'translate(' + (mouseX * 100) + 'px, ' + (mouseY * 100) + 'px)'">
-             <img src="assets/images/bottle-black.png" alt="Juice Bottle" class="floating-bottle-img">
-        </div>
-    </div>
-    
-    <!-- Fizz/Bubble Particles for speed/energy -->
-    <div class="particle p1"></div>
-    <div class="particle p2"></div>
-    <div class="particle p3"></div>
-    <div class="particle p4"></div>
-    <div class="particle p5"></div>
-
-    <!-- Gradient Overlay to ensure text readability -->
-    <div class="overlay-gradient"></div>
-</div>
 
 <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="logo">PepsiCo Admin</div>
+        <div class="logo">PepsiCo</div>
         <nav class="nav-links">
             <a href="javascript:void(0)" class="nav-item active">
-                <span class="icon">📦</span> Dashboard
+                <span class="icon">📊</span> Dashboard
+            </a>
+            <a href="javascript:void(0)" class="nav-item">
+                <span class="icon">📦</span> Inventory
             </a>
             <a href="javascript:void(0)" class="nav-item">
                 <span class="icon">👥</span> Users
@@ -43,24 +30,24 @@
     <main class="main-content">
         <header class="header">
             <div>
-                <h1 class="page-title">Dashboard</h1>
-                <p class="user-info">Welcome back, {{ user?.name }}</p>
+                <h1 class="page-title">Admin Console</h1>
+                <p class="user-info">Manager: {{ user?.name }}</p>
             </div>
-            <button (click)="openModal()" class="btn-primary">+ Add New Product</button>
+            <button (click)="openModal()" class="btn-primary">+ Create Product</button>
         </header>
 
         <!-- Stats -->
         <section class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Products</div>
+                <div class="stat-label">Stock Units</div>
                 <div class="stat-value">{{ products.length }}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Total Stock</div>
+                <div class="stat-label">Total Inventory</div>
                 <div class="stat-value">{{ getTotalStock() }}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">System Status</div>
+                <div class="stat-label">System Health</div>
                 <div class="stat-value" [style.color]="systemStatus === 'Active' ? '#2ea043' : (systemStatus === 'Offline' ? '#cf222e' : '#8b949e')">
                     <span class="status-dot" [class.pulse]="systemStatus === 'Active'"></span>
                     {{ systemStatus }}
@@ -68,10 +55,10 @@
             </div>
         </section>
 
-        <!-- Products -->
+        <!-- Inventory -->
         <section>
-            <div class="action-bar">
-                <h2 class="text-xl font-bold text-white">Product Inventory</h2>
+            <div class="inventory-header">
+                <h2 class="text-white">Product Catalog</h2>
             </div>
             
             <div class="products-grid">
@@ -84,9 +71,9 @@
                         <h3 class="product-name">{{ product.name }}</h3>
                         <div class="product-price">${{ product.price }}</div>
                         <p class="product-desc">{{ product.description }}</p>
-                        <div class="flex justify-between items-center mt-4">
-                            <span class="text-xs text-gray-500">Stock: {{ product.stock }}</span>
-                            <span class="text-xs text-gray-500">ID: {{ product._id.substring(0,6) }}...</span>
+                        <div class="flex justify-between items-center mt-6">
+                            <span class="text-xs text-blue-400 font-semibold">SKU: {{ product._id.substring(0,8).toUpperCase() }}</span>
+                            <span class="text-xs text-gray-400">Stock: {{ product.stock }}</span>
                         </div>
                     </div>
                 </div>
@@ -98,41 +85,41 @@
 <!-- Add Product Modal -->
 <div *ngIf="showModal" class="modal-overlay" (click)="closeModal($event)">
     <div class="modal-content" (click)="$event.stopPropagation()">
-        <h2 class="text-2xl font-bold text-white mb-6">Add New Product</h2>
+        <h2 class="text-white">New Product</h2>
         
         <form [formGroup]="productForm" (ngSubmit)="addProduct()">
             <div class="form-group">
-                <label class="block text-gray-400 mb-2">Product Name</label>
-                <input type="text" formControlName="name" class="form-input" placeholder="e.g. Pepsi Zero Sugar">
+                <label>Product Name</label>
+                <input type="text" formControlName="name" class="form-input" placeholder="e.g. Pepsi Wild Cherry">
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-6">
                 <div class="form-group">
-                    <label class="block text-gray-400 mb-2">Price ($)</label>
+                    <label>Price ($)</label>
                     <input type="number" formControlName="price" class="form-input" placeholder="0.00">
                 </div>
                 <div class="form-group">
-                    <label class="block text-gray-400 mb-2">Stock</label>
+                    <label>Stock</label>
                     <input type="number" formControlName="stock" class="form-input" placeholder="100">
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="block text-gray-400 mb-2">Description</label>
-                <textarea formControlName="description" class="form-input" rows="3" placeholder="Product description..."></textarea>
+                <label>Description</label>
+                <textarea formControlName="description" class="form-input" rows="3" placeholder="Describe the product experience..."></textarea>
             </div>
 
             <div class="form-group">
-                <label class="block text-gray-400 mb-2">Product Image (Local)</label>
-                <input type="file" (change)="onFileSelected($event)" class="form-input file:bg-[#00ddeb] file:text-black file:border-none file:px-2 file:py-1 file:rounded file:mr-2 cursor-pointer" accept="image/*">
-                <p class="text-xs text-gray-500 mt-1" *ngIf="selectedFile">Selected: {{ selectedFile.name }}</p>
+                <label>Product Image</label>
+                <input type="file" (change)="onFileSelected($event)" class="form-input file:bg-[#004b93] file:text-white file:border-none file:px-2 file:py-1 file:rounded file:mr-2 cursor-pointer" accept="image/*">
+                <p class="text-xs text-gray-500 mt-2" *ngIf="selectedFile">Selected: {{ selectedFile.name }}</p>
             </div>
 
             <div class="modal-actions">
-                <button type="button" (click)="showModal = false" class="btn-secondary w-full">Cancel</button>
-                <button type="submit" [disabled]="productForm.invalid || loading" class="btn-primary w-full disabled:opacity-50">
-                    <span *ngIf="!loading">Save Product</span>
-                    <span *ngIf="loading">Saving...</span>
+                <button type="button" (click)="showModal = false" class="btn-secondary">Cancel</button>
+                <button type="submit" [disabled]="productForm.invalid || loading" class="btn-primary">
+                    <span *ngIf="!loading">Add to Catalog</span>
+                    <span *ngIf="loading">Processing...</span>
                 </button>
             </div>
         </form>

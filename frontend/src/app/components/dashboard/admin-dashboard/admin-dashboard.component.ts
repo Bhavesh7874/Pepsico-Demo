@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '../../../core/services/product.service';
+import { LoggerService } from '../../../core/services/logger.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -12,13 +13,14 @@ import { ProductService } from '../../../core/services/product.service';
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   user: any;
   productForm: FormGroup;
   products: any[] = [];
   loading = false;
   showModal = false;
   selectedFile: File | null = null;
+  private mouseMoveListener: any;
 
   // Parallax Variables
   mouseX = 0;
@@ -30,8 +32,10 @@ export class AdminDashboardComponent implements OnInit {
     private authService: AuthService,
     public productService: ProductService,
     private fb: FormBuilder,
-    private http: HttpClient // Add HttpClient to constructor
+    private http: HttpClient,
+    private logger: LoggerService
   ) {
+    this.logger.info('AdminDashboardComponent initialized');
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       price: ['', [Validators.required, Validators.min(0)]],
@@ -41,15 +45,17 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.logger.info('Admin dashboard initializing', { user: this.user?.email });
     this.user = this.authService.currentUserValue;
     this.loadProducts();
     this.checkSystemStatus();
 
     // Add Mouse Move Listener
-    window.addEventListener('mousemove', (e) => {
+    this.mouseMoveListener = (e: MouseEvent) => {
       this.mouseX = (e.clientX - window.innerWidth / 2) / window.innerWidth;
       this.mouseY = (e.clientY - window.innerHeight / 2) / window.innerHeight;
-    });
+    };
+    window.addEventListener('mousemove', this.mouseMoveListener);
   }
 
   checkSystemStatus() {
@@ -61,12 +67,15 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadProducts() {
+    this.logger.debug('Loading products');
     this.productService.getProducts().subscribe(data => {
       this.products = data;
+      this.logger.info('Products loaded', { count: this.products.length });
     });
   }
 
   openModal() {
+    this.logger.debug('Opening add product modal');
     this.showModal = true;
     this.selectedFile = null;
   }
@@ -123,13 +132,21 @@ export class AdminDashboardComponent implements OnInit {
 
   deleteProduct(id: string) {
     if (confirm('Are you sure you want to delete this product?')) {
+      this.logger.info('Deleting product', { id });
       this.productService.deleteProduct(id).subscribe(() => {
         this.products = this.products.filter(p => p._id !== id);
+        this.logger.info('Product deleted successfully', { id });
       });
     }
   }
 
   logout() {
     this.authService.logout();
+  }
+
+  ngOnDestroy() {
+    if (this.mouseMoveListener) {
+      window.removeEventListener('mousemove', this.mouseMoveListener);
+    }
   }
 }

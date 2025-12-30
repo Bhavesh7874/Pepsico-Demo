@@ -1,25 +1,24 @@
 <div class="dashboard-container">
     <div class="video-container">
-        <video autoplay muted loop playsinline class="bg-video">
+        <video autoplay muted [muted]="true" loop playsinline class="bg-video">
             <source src="assets/Videos/PepsiCo.mp4" type="video/mp4">
         </video>
         <div class="video-overlay"></div>
     </div>
-    <!-- Sidebar -->
-    <!-- Sidebar -->
+    
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="logo">PepsiCo User</div>
+        <div class="logo">PepsiCo</div>
         <nav class="nav-links">
             <a (click)="setSection('home')" [class.active]="activeSection === 'home'" class="nav-item">
-                <span class="icon">🏠</span> Home
+                <span class="icon">🏠</span> Discover
             </a>
             <a (click)="setSection('cart')" [class.active]="activeSection === 'cart'" class="nav-item cart-nav">
-                <span class="icon">🛒</span> Cart
+                <span class="icon">🛒</span> My Cart
                 <span *ngIf="getItemCount() > 0" class="cart-badge">{{ getItemCount() }}</span>
             </a>
             <a (click)="setSection('orders')" [class.active]="activeSection === 'orders'" class="nav-item">
-                <span class="icon">🛍️</span> My Orders
+                <span class="icon">🛍️</span> History
             </a>
             <a (click)="setSection('favorites')" [class.active]="activeSection === 'favorites'" class="nav-item">
                 <span class="icon">❤️</span> Favorites
@@ -36,37 +35,37 @@
         <header class="header">
             <div>
                 <h1 class="page-title">{{ activeSection | titlecase }}</h1>
-                <p class="user-info">Manage your profile and experience</p>
+                <p class="user-info">The PepsiCo Premium Experience</p>
             </div>
             <div class="user-pill">
-                Standard Member
+                Verified Member
             </div>
         </header>
 
         <!-- Home Section (Product Listing) -->
         <section *ngIf="activeSection === 'home'" class="home-section">
-            <div class="profile-header glass-panel p-6 rounded-2xl mb-8 flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <div class="avatar text-4xl">👤</div>
+            <div class="profile-header glass-panel p-8 rounded-2xl mb-10 flex justify-between items-center">
+                <div class="flex items-center space-x-6">
+                    <div class="avatar text-4xl bg-blue-900/40 p-4 rounded-full">👤</div>
                     <div>
-                        <h2 class="profile-name text-2xl font-bold">{{ user?.name || 'User' }}</h2>
+                        <h2 class="profile-name text-2xl font-bold">{{ user?.name || 'Welcome' }}</h2>
                         <p class="profile-email text-gray-400">{{ user?.email }}</p>
                     </div>
                 </div>
                 <!-- Mini Cart Summary -->
-                <div class="glass-panel px-6 py-3 rounded-full border border-[#00ddeb]/30 cursor-pointer" (click)="setSection('cart')">
-                    <span class="font-bold text-[#00ddeb]">{{ getItemCount() }} Items - ${{ getTotalPrice() | number:'1.2-2' }}</span>
+                <div class="glass-panel px-8 py-4 rounded-full border border-blue-500/30 cursor-pointer hover:border-blue-400 transition-all" (click)="setSection('cart')">
+                    <span class="font-bold text-blue-400">{{ getItemCount() }} Unit{{ getItemCount() !== 1 ? 's' : '' }} - ${{ getTotalPrice() | number:'1.2-2' }}</span>
                 </div>
             </div>
 
-            <h3 class="text-xl font-bold text-white mb-6">Available Products</h3>
+            <h3 class="text-xl font-bold text-white mb-8">Featured Refreshments</h3>
             <div class="dashboard-grid">
-                <div *ngFor="let product of products" class="dashboard-card product-card">
-                    <img [src]="getProductImage(product)" alt="{{ product.name }}" class="product-thumb mb-4 rounded-xl">
+                <div *ngFor="let product of products" class="glass-panel product-card">
+                    <img [src]="getProductImage(product)" alt="{{ product.name }}" class="product-thumb">
                     <h3 class="card-title">{{ product.name }}</h3>
-                    <p class="card-desc text-[#00ddeb] font-bold">${{ product.price }}</p>
-                    <button (click)="addToCart(product)" class="mt-4 bg-[#00ddeb] text-black px-4 py-2 rounded-lg font-bold w-full hover:scale-105 transition-transform">
-                        Add to Cart
+                    <p class="card-desc">${{ product.price }}</p>
+                    <button (click)="addToCart(product)" class="w-full">
+                        Add to Order
                     </button>
                 </div>
             </div>
@@ -74,136 +73,140 @@
 
         <!-- Cart Section -->
         <section *ngIf="activeSection === 'cart'" class="cart-section">
-            <div *ngIf="cartItems.length === 0" class="text-center py-12 glass-panel rounded-2xl">
-                <div class="text-6xl mb-4">🛒</div>
-                <h3 class="text-xl font-bold">Your cart is empty</h3>
-                <button (click)="setSection('home')" class="mt-4 text-[#00ddeb] font-bold underline">Go Shopping</button>
+            <div *ngIf="cartItems.length === 0" class="text-center py-20 glass-panel rounded-2xl">
+                <div class="text-7xl mb-6">🛒</div>
+                <h3 class="text-2xl font-bold mb-2">Cart is currently empty</h3>
+                <p class="text-gray-400 mb-6">Your next favorite drink is just a click away.</p>
+                <button (click)="setSection('home')" class="text-blue-400 font-bold hover:underline">Start Shopping</button>
             </div>
 
-            <div *ngIf="cartItems.length > 0" class="cart-container grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div *ngIf="cartItems.length > 0" class="cart-container grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div class="lg:col-span-2 space-y-4">
-                    <div *ngFor="let item of cartItems" class="cart-item glass-panel p-4 rounded-xl flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <img [src]="item.image" alt="{{ item.name }}" class="w-16 h-16 rounded-lg object-cover">
+                    <div *ngFor="let item of cartItems" class="cart-item glass-panel p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex items-center space-x-6">
+                            <img [src]="item.image" alt="{{ item.name }}" class="w-20 h-20 rounded-xl object-contain bg-white/5 p-2">
                             <div>
-                                <h4 class="font-bold">{{ item.name }}</h4>
-                                <p class="text-sm text-gray-400">${{ item.price }}</p>
+                                <h4 class="font-bold text-lg">{{ item.name }}</h4>
+                                <p class="text-sm text-blue-400 font-semibold">${{ item.price }}</p>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex items-center space-x-2 bg-black/30 rounded-lg px-2 py-1">
-                                <button (click)="cartService.updateQuantity(item._id, item.qty - 1)" class="text-[#00ddeb]">-</button>
-                                <span class="w-8 text-center">{{ item.qty }}</span>
-                                <button (click)="cartService.updateQuantity(item._id, item.qty + 1)" class="text-[#00ddeb]">+</button>
+                        <div class="flex items-center space-x-6">
+                            <div class="flex items-center space-x-4 bg-white/5 rounded-xl px-4 py-2 border border-white/10">
+                                <button (click)="cartService.updateQuantity(item._id, item.qty - 1)" class="text-red-400 font-bold hover:scale-125 transition-transform">-</button>
+                                <span class="w-6 text-center font-bold text-lg">{{ item.qty }}</span>
+                                <button (click)="cartService.updateQuantity(item._id, item.qty + 1)" class="text-blue-400 font-bold hover:scale-125 transition-transform">+</button>
                             </div>
-                            <button (click)="cartService.removeFromCart(item._id)" class="text-red-500">🗑️</button>
+                            <button (click)="cartService.removeFromCart(item._id)" class="text-red-500 hover:scale-110 transition-transform">🗑️</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="checkout-summary glass-panel p-6 rounded-2xl h-fit">
-                    <h3 class="text-xl font-bold mb-6">Order Summary</h3>
+                <div class="checkout-summary glass-panel p-8 rounded-2xl h-fit">
+                    <h3 class="text-xl font-bold mb-8">Summary</h3>
                     
-                    <div id="stripe-payment-form" class="mb-6">
-                        <label class="block text-sm text-gray-400 mb-2 font-bold">Secure Card Payment</label>
-                        <div id="card-element" class="bg-black/50 border border-gray-700 rounded-xl p-4">
-                            <!-- Stripe Card Element will be mounted here -->
+                    <div id="stripe-payment-form" class="mb-8">
+                        <label class="block text-sm text-gray-400 mb-3 font-bold">Payment Method</label>
+                        <div id="card-element" class="bg-black/30 border border-white/10 rounded-xl p-4">
                         </div>
-                        <div id="card-errors" role="alert" class="text-red-500 text-xs mt-2"></div>
+                        <div id="card-errors" role="alert" class="text-red-500 text-xs mt-3"></div>
                     </div>
 
-                    <div class="space-y-4 mb-6">
+                    <div class="space-y-4 mb-8">
                         <div class="flex justify-between">
                             <span class="text-gray-400">Subtotal</span>
                             <span>${{ getTotalPrice() | number:'1.2-2' }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-400">Shipping</span>
-                            <span class="text-green-500">Free</span>
+                            <span class="text-gray-400">Standard Shipping</span>
+                            <span class="text-emerald-400">Inclusive</span>
                         </div>
-                        <div class="border-t border-gray-700 pt-4 flex justify-between font-bold text-xl">
+                        <div class="border-t border-white/10 pt-6 flex justify-between font-extrabold text-2xl">
                             <span>Total</span>
-                            <span class="text-[#00ddeb]">${{ getTotalPrice() | number:'1.2-2' }}</span>
+                            <span class="text-blue-400">${{ getTotalPrice() | number:'1.2-2' }}</span>
                         </div>
                     </div>
-                    <button (click)="checkout()" [disabled]="processing" class="w-full bg-[#00ddeb] text-black py-4 rounded-xl font-bold text-lg hover:shadow-[0_0_20px_rgba(0,221,235,0.4)] transition-all disabled:opacity-50">
-                        <span *ngIf="!processing">Pay & Place Order</span>
-                        <span *ngIf="processing">Processing Payment...</span>
+                    <button (click)="checkout()" [disabled]="processing" class="btn-update w-full py-4 text-xl shadow-lg shadow-blue-900/20">
+                        <span *ngIf="!processing">Place Order</span>
+                        <span *ngIf="processing">Finalizing...</span>
                     </button>
-                    <p class="text-[10px] text-gray-500 mt-4 text-center">Secure payments powered by Stripe</p>
+                    <p class="text-[10px] text-gray-500 mt-6 text-center uppercase tracking-widest font-bold">Encrypted via Stripe</p>
                 </div>
             </div>
         </section>
 
         <!-- Orders Section -->
-        <section *ngIf="activeSection === 'orders'" class="orders-section glass-panel p-6 rounded-2xl">
-            <div *ngIf="orders.length === 0" class="text-center py-12">
-                <div class="text-6xl mb-4">🛒</div>
-                <h3 class="text-xl font-bold">No orders yet</h3>
-                <p class="text-gray-400">Your order history will appear here.</p>
+        <section *ngIf="activeSection === 'orders'" class="orders-section space-y-4">
+            <div *ngIf="orders.length === 0" class="text-center py-20 glass-panel rounded-2xl">
+                <div class="text-7xl mb-6">📦</div>
+                <h3 class="text-2xl font-bold">No orders found</h3>
+                <p class="text-gray-400">Your refreshment journey begins with your first order.</p>
             </div>
-            <div *ngFor="let order of orders" class="order-item glass-panel p-4 mb-4 rounded-xl flex justify-between items-center">
-                <div>
-                    <h4 class="font-bold">Order #{{ order._id.slice(-6) }}</h4>
-                    <p class="text-sm text-gray-400">{{ order.createdAt | date }}</p>
+            <div *ngFor="let order of orders" class="order-item glass-panel p-6 rounded-2xl flex justify-between items-center hover:border-blue-500/50">
+                <div class="flex items-center space-x-6">
+                    <div class="bg-blue-900/30 p-4 rounded-full">🥤</div>
+                    <div>
+                        <h4 class="font-bold text-lg">Transaction #{{ order._id.slice(-8).toUpperCase() }}</h4>
+                        <p class="text-sm text-gray-400 font-medium">{{ order.createdAt | date:'medium' }}</p>
+                    </div>
                 </div>
                 <div class="text-right">
-                    <p class="font-bold text-[#00ddeb]">${{ order.totalAmount }}</p>
-                    <span class="status-pill px-2 py-1 rounded text-xs bg-cyan-900 text-cyan-200">{{ order.status }}</span>
+                    <p class="font-extrabold text-xl text-blue-400 mb-2">${{ order.totalAmount | number:'1.2-2' }}</p>
+                    <span class="status-pill px-4 py-1.5 rounded-full text-xs font-black tracking-widest bg-blue-900/50 text-blue-200 border border-blue-400/20">{{ order.status | uppercase }}</span>
                 </div>
             </div>
         </section>
 
         <!-- Favorites Section -->
         <section *ngIf="activeSection === 'favorites'" class="favorites-section">
+            <div *ngIf="favorites.length === 0" class="text-center py-20 glass-panel rounded-2xl">
+                <div class="text-7xl mb-6">💙</div>
+                <h3 class="text-2xl font-bold">No saved favorites</h3>
+                <p class="text-gray-400">Save the drinks you love for quicker access.</p>
+            </div>
             <div class="dashboard-grid">
-                <div *ngFor="let fav of favorites" class="dashboard-card product-card">
-                    <div class="card-icon">🥤</div>
+                <div *ngFor="let fav of favorites" class="glass-panel product-card">
+                    <img [src]="getProductImage(fav.product)" alt="{{ fav.product.name }}" class="product-thumb">
                     <h3 class="card-title">{{ fav.product.name }}</h3>
                     <p class="card-desc">${{ fav.product.price }}</p>
-                    <button class="mt-4 bg-[#00ddeb] text-black px-4 py-2 rounded-lg font-bold w-full">Order Now</button>
-                </div>
-                <div *ngIf="favorites.length === 0" class="col-span-full text-center py-12 glass-panel rounded-2xl">
-                    <div class="text-6xl mb-4">💔</div>
-                    <h3 class="text-xl font-bold">No favorites yet</h3>
+                    <button class="w-full" (click)="addToCart(fav.product)">Order Now</button>
                 </div>
             </div>
         </section>
 
         <!-- Settings Section -->
         <section *ngIf="activeSection === 'settings'" class="settings-section space-y-8">
-            <div class="glass-panel p-6 rounded-2xl">
-                <h3 class="text-xl font-bold mb-6">Profile Settings</h3>
-                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-panel p-8 rounded-2xl shadow-xl shadow-black/50">
+                <h3 class="text-2xl font-black mb-8 border-b border-white/10 pb-4">Personal Info</h3>
+                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="form-group">
-                            <label class="block text-sm text-gray-400 mb-2">Full Name</label>
-                            <input type="text" formControlName="name" class="w-full bg-black/50 border border-gray-700 rounded-xl p-3 text-white focus:border-[#00ddeb] outline-none">
+                            <label class="block text-sm text-gray-400 mb-3 font-bold uppercase tracking-wider">Account Name</label>
+                            <input type="text" formControlName="name" class="form-input">
                         </div>
                         <div class="form-group">
-                            <label class="block text-sm text-gray-400 mb-2">Email Address</label>
-                            <input type="email" formControlName="email" class="w-full bg-black/50 border border-gray-700 rounded-xl p-3 text-white focus:border-[#00ddeb] outline-none">
+                            <label class="block text-sm text-gray-400 mb-3 font-bold uppercase tracking-wider">Email Registry</label>
+                            <input type="email" formControlName="email" class="form-input">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="block text-sm text-gray-400 mb-2">New Password (leave blank to keep current)</label>
-                        <input type="password" formControlName="password" class="w-full bg-black/50 border border-gray-700 rounded-xl p-3 text-white focus:border-[#00ddeb] outline-none">
+                        <label class="block text-sm text-gray-400 mb-3 font-bold uppercase tracking-wider">Access Security (Leave blank to keep current)</label>
+                        <input type="password" formControlName="password" class="form-input" placeholder="Update your passcode">
                     </div>
-                    <div class="flex justify-end pt-4">
-                        <button type="submit" [disabled]="profileForm.invalid || settingsLoading" class="bg-[#00ddeb] text-black px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform disabled:opacity-50">
-                            {{ settingsLoading ? 'Saving...' : 'Save Profile Changes' }}
+                    <div class="flex justify-end pt-6 border-t border-white/10">
+                        <button type="submit" [disabled]="profileForm.invalid || settingsLoading" class="btn-update shadow-lg shadow-blue-900/40 hover:scale-105 transition-transform">
+                            {{ settingsLoading ? 'Synchronizing...' : 'Update Profile' }}
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="glass-panel p-6 rounded-2xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold">Payment Methods</h3>
-                    <button class="bg-gray-800 text-gray-400 px-4 py-2 rounded-xl text-sm font-bold cursor-not-allowed">Manage in Stripe</button>
+            <div class="glass-panel p-8 rounded-2xl">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-2xl font-black">Finance Hub</h3>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest bg-white/5 py-2 px-4 rounded-full">Stripe Integration</p>
                 </div>
-                <div class="p-8 text-center border-2 border-dashed border-gray-800 rounded-2xl">
-                    <p class="text-gray-500">Your payment methods are securely managed through our payment processor.</p>
+                <div class="p-12 text-center border-2 border-dashed border-white/10 rounded-3xl bg-blue-900/5">
+                    <p class="text-gray-400 font-medium">Your financial credentials are vaulted securely through Stripe's banking infrastructure.</p>
                 </div>
             </div>
         </section>

@@ -7,8 +7,7 @@ import { SceneComponent } from './components/scene/scene.component';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterModule, SceneComponent, CommonModule],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   title = 'demo-3d-animation';
