@@ -195,6 +195,7 @@ export class SceneComponent implements AfterViewInit, OnDestroy {
 
       mouse.x = x;
       mouse.y = y;
+      this.threeService.mousePos.set(x, y);
 
       if (camera) {
         gsap.to(camera.position, {

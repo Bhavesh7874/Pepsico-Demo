@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { CanBuilder } from '../three/can-builder';
 import { ParticleSystem } from '../three/particles';
 import { EffectsBuilder } from '../three/effects-builder';
+import { SmokeService } from './smoke.service';
 
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -25,11 +26,14 @@ export class ThreeService implements OnDestroy {
   public particles!: ParticleSystem;
   public energyRings!: THREE.Group;
   public ambientDust!: THREE.Points;
+  private smokePlane!: THREE.Mesh;
+  public mousePos = new THREE.Vector2(0, 0);
 
 
   constructor(
     private ngZone: NgZone,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private smokeService: SmokeService
   ) { }
 
   public initialize(canvas: HTMLCanvasElement): void {
@@ -79,6 +83,10 @@ export class ThreeService implements OnDestroy {
 
     // Lighting
     this.setupLighting();
+
+    // Smoke Simulation
+    this.smokeService.init(this.renderer);
+    this.setupSmokePlane();
 
     this.setupPostProcessing();
 
@@ -149,6 +157,48 @@ export class ThreeService implements OnDestroy {
     this.scene.add(frontLight);
   }
 
+  private setupSmokePlane(): void {
+    const geometry = new THREE.PlaneGeometry(30, 20);
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        tSmoke: { value: null },
+        uColor: { value: new THREE.Color(0x0055ff) }, // Pepsi Blue
+        uTime: { value: 0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tSmoke;
+        uniform vec3 uColor;
+        uniform float uTime;
+        varying vec2 vUv;
+        
+        void main() {
+          vec4 smoke = texture2D(tSmoke, vUv);
+          float alpha = smoothstep(0.01, 0.4, smoke.z);
+          
+          vec3 baseColor = vec3(0.02, 0.05, 0.15);
+          vec3 smokeColor = mix(baseColor, uColor, alpha);
+          smokeColor += smoke.z * 0.3; // Add intensity glow
+          
+          gl_FragColor = vec4(smokeColor, alpha * 0.9);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    this.smokePlane = new THREE.Mesh(geometry, material);
+    this.smokePlane.position.z = -2;
+    this.scene.add(this.smokePlane);
+  }
+
 
   public getCanMesh(): THREE.Group {
     return this.canMesh;
@@ -165,6 +215,13 @@ export class ThreeService implements OnDestroy {
   private animate = (): void => {
     this.ngZone.runOutsideAngular(() => {
       const time = performance.now() * 0.001;
+
+      // Update Smoke
+      const smokeTexture = this.smokeService.update(time, this.mousePos.x, this.mousePos.y);
+      if (this.smokePlane) {
+        (this.smokePlane.material as THREE.ShaderMaterial).uniforms['tSmoke'].value = smokeTexture;
+        (this.smokePlane.material as THREE.ShaderMaterial).uniforms['uTime'].value = time;
+      }
 
       // Animate Particles
       if (this.particles && this.canMesh) {
